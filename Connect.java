@@ -1,11 +1,22 @@
-import java.sql.*;
-  //File name Connect.java 
-  public class Connect {    public static void main(String[] args) throws SQLException 
-  {String url = "jdbc:mysql://localhost:3306/school";      
-  String user = "root";       
-  String password = "";
-  Connection conn = DriverManager.getConnection ( url, user,  password);        
-  System.out.println("Connected!"); 
-  conn.close(); 
-  }
-  }
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Properties;
+
+public class Connect {
+    // Opens and returns a JDBC connection using credentials from config.properties
+    public static Connection getConnection() throws SQLException {
+        Properties props = new Properties();
+        try (FileInputStream in = new FileInputStream("config.properties")) {
+            props.load(in);
+        } catch (IOException e) {
+            throw new SQLException("Could not read config.properties", e);
+        }
+        return DriverManager.getConnection(
+            props.getProperty("db.url"),
+            props.getProperty("db.user"),
+            props.getProperty("db.password"));
+    }
+}

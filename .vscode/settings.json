@@ -1,0 +1,6 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "c:\\Users\\david\\OneDrive\\Desktop\\Documents\\mysql-connector-j.jar"
+    ]
+}
