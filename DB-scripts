@@ -1,0 +1,26 @@
+CREATE DATABASE IF NOT EXISTS mkulima_db;
+USE mkulima_db;
+
+CREATE TABLE Animals (
+    animalID VARCHAR(20) PRIMARY KEY,
+    gender VARCHAR(10) NOT NULL,
+    quantity INT NOT NULL,
+    atype VARCHAR(50) NOT NULL,
+    healthstatus VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE Crops (
+    cropID VARCHAR(20) PRIMARY KEY,
+    ctype VARCHAR(50) NOT NULL,
+    qtinkg DOUBLE NOT NULL,
+    growthstatus VARCHAR(50) NOT NULL,
+    dateplanted DATE NOT NULL
+);
+
+CREATE TABLE Machinery (
+    machineID VARCHAR(20) PRIMARY KEY,
+    machinetype VARCHAR(50) NOT NULL,
+    mquantity INT NOT NULL,
+    status ENUM('Active', 'Inactive') NOT NULL,
+    `condition` ENUM('Good', 'Broken', 'In repair') NOT NULL
+);

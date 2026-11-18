@@ -15,13 +15,13 @@ public class FarmInventoryCRUD {
         int AnimalsRows = stmt.executeUpdate(
             "INSERT INTO Animals (animalID, gender, quantity, atype, healthstatus) VALUES ('1', 'Female', 10, 'Cows', 'Sick')"
         );
-        System.out.println(animalRows + " animal rows added.");
+        System.out.println(AnimalsRows + " animal rows added.");
 
         // Insert Crop
         int CropsRows = stmt.executeUpdate(
             "INSERT INTO Crops (cropID, ctype, qtinkg, growthstatus, dateplanted) VALUES ('1', 'Wheat', 1200.5, 'seedling', '14/11/26')"
         );
-        System.out.println(cropRows + " crop rows added.");
+        System.out.println(CropsRows + " crop rows added.");
 
         // Insert Machinery
         int MachineryRows = stmt.executeUpdate(
@@ -39,7 +39,7 @@ public class FarmInventoryCRUD {
             int quantity = rsAnimals.getInt("quantity");
             String type = rsAnimals.getString("atype");
             String healthStatus = rsAnimals.getString("healthstatus");
-            System.out.println(id  +","+ atype + ","+ gender + ", " + quantity + ", " + healthStatus);
+            System.out.println(id  +","+ type + ","+ gender + ", " + quantity + ", " + healthStatus);
         }
         rsAnimals.close();
 
