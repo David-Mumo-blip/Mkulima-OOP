@@ -1,67 +1,104 @@
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * All Create, Read, Update and Delete operations for Animals, Crops and Machinery.
+ * Add, update and delete all go through the one execute() helper below.
+ * SQLExceptions are passed up to the GUI, which shows a message to the user.
+ */
 public class FarmInventoryCRUD {
-    public static void main(String[] args) throws SQLException {
-        String url = "";
-        String user = "";
-        String password = "";
 
-        Connection conn = DriverManager.getConnection(url, user, password);
-        Statement stmt = conn.createStatement();
-
-        // 1. CREATE (INSERT) 
-        
-        // Insert Animal
-        int AnimalsRows = stmt.executeUpdate(
-            "INSERT INTO Animals (animalID, gender, quantity, atype, healthstatus) VALUES ('1', 'Female', 10, 'Cows', 'Sick')"
-        );
-        System.out.println(AnimalsRows + " animal rows added.");
-
-        // Insert Crop
-        int CropsRows = stmt.executeUpdate(
-            "INSERT INTO Crops (cropID, ctype, qtinkg, growthstatus, dateplanted) VALUES ('1', 'Wheat', 1200.5, 'seedling', '14/11/26')"
-        );
-        System.out.println(CropsRows + " crop rows added.");
-
-        // Insert Machinery
-        int MachineryRows = stmt.executeUpdate(
-            "INSERT INTO Machinery (machineID, machinetype, mquantity, status, condition) VALUES ('1', 'Harvester', 'Inactive', 'Good')"
-        );
-        System.out.println(MachineryRows + " machinery rows added.");
-
-
-        // 2. READ (SELECT) 
-        
-        ResultSet rsAnimals = stmt.executeQuery("SELECT * FROM Animals");
-        while (rsAnimals.next()) {
-            String id = rsAnimals.getString("animalID");
-            String gender = rsAnimals.getString("gender");
-            int quantity = rsAnimals.getInt("quantity");
-            String type = rsAnimals.getString("atype");
-            String healthStatus = rsAnimals.getString("healthstatus");
-            System.out.println(id  +","+ type + ","+ gender + ", " + quantity + ", " + healthStatus);
+    // Runs any INSERT / UPDATE / DELETE. The ? placeholders are filled from params,
+    // so user input can never change the SQL itself.
+    private int execute(String sql, Object... params) throws SQLException {
+        try (Connection conn = Connect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (int i = 0; i < params.length; i++) {
+                ps.setObject(i + 1, params[i]);
+            }
+            return ps.executeUpdate();
         }
-        rsAnimals.close();
+    }
 
+    // ---------- ANIMALS ----------
+    public void addAnimal(Animal a) throws SQLException {
+        execute("INSERT INTO Animals (gender, quantity, atype, healthstatus) VALUES (?, ?, ?, ?)",
+                a.getGender(), a.getQuantity(), a.getAtype(), a.getHealthstatus());
+    }
 
-        //  3. UPDATE 
-        
-        int updateRows = stmt.executeUpdate(
-            "UPDATE animals SET healthstatus = 'Excellent', quantity = 12 WHERE animalID = '1'"
-        );
-        System.out.println("\n" + updateRows + " animal rows updated.");
+    public List<Animal> getAllAnimals() throws SQLException {
+        List<Animal> list = new ArrayList<>();
+        try (Connection conn = Connect.getConnection();
+             ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM Animals ORDER BY animalID")) {
+            while (rs.next()) {
+                list.add(new Animal(rs.getInt("animalID"), rs.getString("gender"), rs.getInt("quantity"),
+                        rs.getString("atype"), rs.getString("healthstatus")));
+            }
+        }
+        return list;
+    }
 
+    public void updateAnimal(Animal a) throws SQLException {
+        execute("UPDATE Animals SET gender = ?, quantity = ?, atype = ?, healthstatus = ? WHERE animalID = ?",
+                a.getGender(), a.getQuantity(), a.getAtype(), a.getHealthstatus(), a.getAnimalID());
+    }
 
-        //  4. DELETE 
-        
-        int deleteRows = stmt.executeUpdate(
-            "DELETE FROM machinery WHERE machineID = '1'"
-        );
-        System.out.println(deleteRows + " machinery rows deleted.");
+    public void deleteAnimal(int id) throws SQLException {
+        execute("DELETE FROM Animals WHERE animalID = ?", id);
+    }
 
+    // ---------- CROPS (dateplanted must be yyyy-MM-dd) ----------
+    public void addCrop(Crops c) throws SQLException {
+        execute("INSERT INTO Crops (ctype, qtinkg, growthstatus, dateplanted) VALUES (?, ?, ?, ?)",
+                c.getCtype(), c.getQtinkg(), c.getGrowthstatus(), Date.valueOf(c.getDateplanted()));
+    }
 
-        //  CLOSE CONNECTIONS 
-        stmt.close();
-        conn.close();
+    public List<Crops> getAllCrops() throws SQLException {
+        List<Crops> list = new ArrayList<>();
+        try (Connection conn = Connect.getConnection();
+             ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM Crops ORDER BY cropID")) {
+            while (rs.next()) {
+                list.add(new Crops(rs.getInt("cropID"), rs.getString("ctype"), rs.getDouble("qtinkg"),
+                        rs.getString("growthstatus"), rs.getString("dateplanted")));
+            }
+        }
+        return list;
+    }
+
+    public void updateCrop(Crops c) throws SQLException {
+        execute("UPDATE Crops SET ctype = ?, qtinkg = ?, growthstatus = ?, dateplanted = ? WHERE cropID = ?",
+                c.getCtype(), c.getQtinkg(), c.getGrowthstatus(), Date.valueOf(c.getDateplanted()), c.getCropID());
+    }
+
+    public void deleteCrop(int id) throws SQLException {
+        execute("DELETE FROM Crops WHERE cropID = ?", id);
+    }
+
+    // ---------- MACHINERY (`condition` is a reserved word, so it needs backticks) ----------
+    public void addMachinery(Machinery m) throws SQLException {
+        execute("INSERT INTO Machinery (machinetype, mquantity, status, `condition`) VALUES (?, ?, ?, ?)",
+                m.getMachinetype(), m.getMquantity(), m.getStatus(), m.getCondition());
+    }
+
+    public List<Machinery> getAllMachinery() throws SQLException {
+        List<Machinery> list = new ArrayList<>();
+        try (Connection conn = Connect.getConnection();
+             ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM Machinery ORDER BY machineID")) {
+            while (rs.next()) {
+                list.add(new Machinery(rs.getInt("machineID"), rs.getString("machinetype"), rs.getInt("mquantity"),
+                        rs.getString("status"), rs.getString("condition")));
+            }
+        }
+        return list;
+    }
+
+    public void updateMachinery(Machinery m) throws SQLException {
+        execute("UPDATE Machinery SET machinetype = ?, mquantity = ?, status = ?, `condition` = ? WHERE machineID = ?",
+                m.getMachinetype(), m.getMquantity(), m.getStatus(), m.getCondition(), m.getMachineID());
+    }
+
+    public void deleteMachinery(int id) throws SQLException {
+        execute("DELETE FROM Machinery WHERE machineID = ?", id);
     }
 }

@@ -1,8 +1,8 @@
 CREATE DATABASE IF NOT EXISTS mkulima_db;
 USE mkulima_db;
-
+-- The IDs are now INT AUTO_INCREMENT, so the old tables must be rebuilt.
 CREATE TABLE Animals (
-    animalID VARCHAR(20) PRIMARY KEY,
+    animalID INT AUTO_INCREMENT PRIMARY KEY,
     gender VARCHAR(10) NOT NULL,
     quantity INT NOT NULL,
     atype VARCHAR(50) NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE Animals (
 );
 
 CREATE TABLE Crops (
-    cropID VARCHAR(20) PRIMARY KEY,
+    cropID INT AUTO_INCREMENT PRIMARY KEY,
     ctype VARCHAR(50) NOT NULL,
     qtinkg DOUBLE NOT NULL,
     growthstatus VARCHAR(50) NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE Crops (
 );
 
 CREATE TABLE Machinery (
-    machineID VARCHAR(20) PRIMARY KEY,
+    machineID INT AUTO_INCREMENT PRIMARY KEY,
     machinetype VARCHAR(50) NOT NULL,
     mquantity INT NOT NULL,
     status ENUM('Active', 'Inactive') NOT NULL,
